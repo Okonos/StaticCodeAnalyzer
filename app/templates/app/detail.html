@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block head_title %}
+    {{ repository.name }}
+{% endblock %}
+
+{% block extra_head %}
+    {% load bootstrap3 %}
+    {% bootstrap_css %}
+{% endblock %}
+
+{% block body %}
+    {% bootstrap_label "{{ repository.name }}" %}
+{% endblock %}

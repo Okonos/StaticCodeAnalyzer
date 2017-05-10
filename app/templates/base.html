@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load bootstrap3 %}
+    {% bootstrap_css %}
+    <meta charset="UTF-8">
+    <title>{% block head_title %} {% endblock %}</title>
+    {% block extra_head %}
+    {% endblock %}
+</head>
+<body>
+    {% block navbar %}
+        <nav class="navbar navbar-default role=navigation">
+            <div class="container-fluid">
+                <ul class="nav navbar-nav">
+                    <li><a href="{% url 'app:home' %}">Home</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        {% bootstrap_messages %}
+    {% endblock %}
+    {% block body %}
+    {% endblock %}
+</body>
+</html>
