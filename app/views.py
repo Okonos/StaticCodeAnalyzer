@@ -29,8 +29,8 @@ class IndexView(ListView, ModelFormMixin):
 
         if self.form.is_valid():
             repo = self.form.save(commit=False)
-            url_split = repo.url.split('/')
-            repo.url = '/'.join(url_split[:5])
+            url_split = repo.url.split('/')[:5]
+            repo.url = '/'.join(url_split)
 
             try:
                 s = url_split.copy()
