@@ -9,10 +9,14 @@
     {% bootstrap_css %}
     {% bootstrap_javascript jquery=1 %}
 
-    {#    clickable row #}
+    <style>
+        td { text-align: center; }
+    </style>
+
+    {#    clickable #}
     <script>
         jQuery(document).ready(function($) {
-            $(".clickable-row").click(function() {
+            $(".clickable").click(function() {
                 window.document.location = $(this).data("href");
             });
         });
@@ -20,41 +24,51 @@
 {% endblock extra_head %}
 
 {% block body %}
-    <h1 class="text-center">Static Code Analyzer</h1>
     <div class="container-fluid">
-        <div class="col-md-4 col-md-offset-4">
-            <form action="" method="post" class="form">
-                {% csrf_token %}
-                {% bootstrap_field form.url show_label=False placeholder='Repository URL' %}
-                {% bootstrap_button 'Run' button_type='submit' button_class='btn-primary' %}
-            </form>
+        <div class="row">
+            <div class="col-md-4 col-md-offset-4">
+                <h1 class="text-center">Static Code Analyzer</h1>
+                <br/>
+                <form action="" method="post" class="form">
+                    {% csrf_token %}
+                    <div style="float: right">{% bootstrap_button 'Run' button_type='submit' button_class='btn-primary' %}</div>
+                    <div style="overflow: hidden; padding-right: .5em">{% bootstrap_field form.url show_label=False placeholder='Repository URL' %}</div>
+                </form>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 30px">
+            <div class="col-md-10 col-md-offset-1">
+                <table class="table table-striped table-hover">
+                    <thead>
+                    <tr>
+                        <td>Name</td>
+                        <td>URL</td>
+                        <td>Last analysis</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for repo in repositories %}
+                        <tr>
+                            <td class="clickable" data-href="{% url 'app:detail' repo.id %}"
+                                style="cursor: pointer">{{ repo.name }}</td>
+                            <td><a href="{{ repo.url }}">{{ repo.url }}</a></td>
+                            <td>{{ repo.analysis_date }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="100%" align="center">No repositories yet.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if is_paginated %}
+                <div class="col-md-2 col-md-offset-5">
+                    {% bootstrap_pagination page_obj %}
+                </div>
+            {% endif %}
         </div>
     </div>
 
-    <h3 class="text-center">Repositories</h3>
-    <table class="table table-striped table-hover">
-        <thead>
-        <tr>
-            <td>Name</td>
-            <td>URL</td>
-            <td>Last analysis</td>
-        </tr>
-        </thead>
-        <tbody>
-        {% for repo in repositories %}
-            <tr>
-                <td class="clickable-row" data-href="{% url 'app:detail' repo.id %}"
-                style="cursor: pointer">{{ repo.name }}</td>
-                <td><a href="{{ repo.url }}">{{ repo.url }}</a></td>
-                <td>{{ repo.analysis_date }}</td>
-            </tr>
-        {% empty %}
-            <tr>
-                <td colspan="100%" align="center">No repositories yet.</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    {% bootstrap_pagination page_obj %}
 {% endblock body %}

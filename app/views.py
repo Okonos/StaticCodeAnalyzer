@@ -16,7 +16,7 @@ class IndexView(ListView, ModelFormMixin):
     form_class = RepositoryForm
     template_name = 'app/index.html'
     context_object_name = 'repositories'
-    paginate_by = 10
+    paginate_by = 5
 
     def get(self, request, *args, **kwargs):
         self.object = None
