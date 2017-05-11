@@ -52,9 +52,10 @@ class Analyzer:
             with redirect_stdout(f):
                 result.print_statistics()
             statistics = f.getvalue()
-            results.append({'path': filename.replace('-', '/'),
-                            'errors_num': result.total_errors,
-                            'statistics': statistics})
+            if statistics:
+                results.append({'path': filename.replace('-', '/'),
+                                'errors_num': result.total_errors,
+                                'statistics': statistics})
 
         shutil.rmtree(cls.tempdir)
         return results
