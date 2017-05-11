@@ -2,6 +2,7 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import ModelFormMixin
+from django.db.models import Sum
 from django.contrib import messages
 from datetime import datetime
 from requests import exceptions
@@ -73,4 +74,5 @@ class RepoDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(RepoDetailView, self).get_context_data(**kwargs)
         context['files'] = File.objects.filter(repo=self.kwargs['pk'])
+        context['sum'] = context['files'].aggregate(Sum('errors_num'))['errors_num__sum']
         return context
