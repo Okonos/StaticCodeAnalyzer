@@ -15,6 +15,10 @@ class Analyzer:
     @classmethod
     def get_repo_archive(cls, url):
         """Downloads repo's zip archive using GitHub API"""
+        url = url.split('/')
+        url[2] = 'api.github.com'
+        url.insert(3, 'repos')
+        url = '/'.join(url)
         response = requests.get(url + '/zipball')
         if response.status_code == requests.codes.ok:
             cls.tempdir = tempfile.mkdtemp()
@@ -41,7 +45,6 @@ class Analyzer:
     def analyze(cls):
         """Extract, analyze and return the statistics of all source files using pep8 checker."""
         cls.extract_py_files()
-        # TODO checkery do wyboru
         style = pep8.StyleGuide()
         results = []
         for filename in os.listdir(cls.tempdir):

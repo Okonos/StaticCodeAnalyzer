@@ -34,11 +34,7 @@ class IndexView(ListView, ModelFormMixin):
             repo.url = '/'.join(url_split)
 
             try:
-                s = url_split.copy()
-                s[2] = 'api.github.com'
-                s.insert(3, 'repos')
-                api_url = '/'.join(s)
-                Analyzer.get_repo_archive(api_url)
+                Analyzer.get_repo_archive(repo.url)
             except exceptions.HTTPError:
                 messages.error(request, "Error 404: Repository not found.")
                 return HttpResponseRedirect(reverse('app:home'))
@@ -46,7 +42,6 @@ class IndexView(ListView, ModelFormMixin):
             name = '/'.join(url_split[-2:])
             repo, _ = Repository.objects.update_or_create(url=repo.url, name=name,
                                                           defaults={'analysis_date': datetime.now()})
-            # TODO remove -> self.object = repo.save()
 
             results = Analyzer.analyze()
             # delete files that no longer are in repo
@@ -54,7 +49,6 @@ class IndexView(ListView, ModelFormMixin):
             File.objects.filter(repo=repo).exclude(path__in=paths).delete()
             for filestats in results:
                 File.objects.update_or_create(repo=repo, path=filestats['path'], defaults=filestats)
-                # repo.file_set.create(**filestats)
 
             messages.success(request, "Repository analyzed successfully. Here are the results.")
             return HttpResponseRedirect(reverse('app:detail', kwargs={'pk': repo.id}))
