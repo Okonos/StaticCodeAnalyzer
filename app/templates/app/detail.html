@@ -12,14 +12,15 @@
 {% block body %}
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-4 col-md-offset-4">
                 <p> {% bootstrap_label "Name:" %} {{ repository.name }} </p>
-            </div>
-            <div class="col-md-4">
                 <p> {% bootstrap_label "URL:" %} <a href="{{ repository.url }}"> {{ repository.url }} </a> </p>
-            </div>
-            <div class="col-md-4">
                 <p> {% bootstrap_label "Analysis date:" %} {{ repository.analysis_date }} </p>
+                <form class="form" action="" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{ repository.url }}" name="url"/>
+                    <input type="submit" value="Reanalyze this repository" class="btn btn-primary"/>
+                </form>
             </div>
         </div>
 

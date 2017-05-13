@@ -12,6 +12,15 @@ from .forms import RepositoryForm
 from .analyzer import Analyzer
 
 
+def analyze_and_update_files(repo):
+    results = Analyzer.analyze()
+    # delete files that no longer are in repo
+    paths = [f['path'] for f in results]
+    File.objects.filter(repo=repo).exclude(path__in=paths).delete()
+    for filestats in results:
+        File.objects.update_or_create(repo=repo, path=filestats['path'], defaults=filestats)
+
+
 class IndexView(ListView, ModelFormMixin):
     model = Repository
     form_class = RepositoryForm
@@ -43,13 +52,7 @@ class IndexView(ListView, ModelFormMixin):
             repo, _ = Repository.objects.update_or_create(url=repo.url, name=name,
                                                           defaults={'analysis_date': datetime.now()})
 
-            results = Analyzer.analyze()
-            # delete files that no longer are in repo
-            paths = [f['path'] for f in results]
-            File.objects.filter(repo=repo).exclude(path__in=paths).delete()
-            for filestats in results:
-                File.objects.update_or_create(repo=repo, path=filestats['path'], defaults=filestats)
-
+            analyze_and_update_files(repo)
             messages.success(request, "Repository analyzed successfully. Here are the results.")
             return HttpResponseRedirect(reverse('app:detail', kwargs={'pk': repo.id}))
 
@@ -70,3 +73,17 @@ class RepoDetailView(DetailView):
         context['files'] = File.objects.filter(repo=self.kwargs['pk'])
         context['sum'] = context['files'].aggregate(Sum('errors_num'))['errors_num__sum']
         return context
+
+    def post(self, request, *args, **kwargs):
+        try:
+            url = request.POST['url']
+            Analyzer.get_repo_archive(url)
+            repo = Repository.objects.get(url=url)
+            repo.analysis_date = datetime.now()
+            repo.save()
+            analyze_and_update_files(repo)
+            messages.success(request, "Repository analyzed successfully. Report has been updated.")
+        except exceptions.HTTPError:
+            messages.error(request, "Failure: Repository not found.")
+
+        return self.get(self, request, *args, **kwargs)
