@@ -38,8 +38,13 @@ Powyższy plik zawiera również kod pozyskujący emaile subskrybentów projekt
 wyświetlany jest jedynie jeśli został on ustawiony przez niego jako publiczny i co więcej
 jedynie dla uwierzytelnionych użytkowników, na potrzeby tego zadania stażowego odbywa się to niejako "na około",
 stosując "hack", wyłuskujący email z publicznych wydarzeń użytkownika (`GET /users/:username/events/public`).
+Takie podejście jest problematyczne z co najmniej dwóch powodów:
+1. W przypadku większej liczby subskrybentów konieczne jest wysłanie dużej liczby żądań, co znacząco wydłuża czas oczekiwania
+   na zakończenie analizy (brak asynchroniczności). Remedium to wspomniana asynchroniczność i/albo zrównoleglenie żądań.
+2. W wydarzeniach mogą znajdować się również niepożądane adresy innych użytkowników, których odsiew jest niemożliwy.
+
 W rzeczywistych warunkach, zakładając, że każdy z subskrybentów projektu miałby swój adres ustawiony jako publiczny,
-wystarczyłby Personal Access Token w nagłówku żądania `GET /users/:username`.
+wystarczyłby Personal Access Token w nagłówku żądania `GET /users/:username` (nie rozwiązuje to problemu dużej liczby żądań).
 
 Aplikacja nie była pisana z myślą o wspołbieżnym dostępie, dlatego jednoczesne zlecenie analizy tego samego repozytorium
 mogłoby poskutkować dwukrotnym jego dodaniem do bazy danych.
