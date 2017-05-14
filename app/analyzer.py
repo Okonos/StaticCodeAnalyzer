@@ -11,6 +11,7 @@ import zipfile
 class Analyzer:
     tempdir = ''
     zip_path = ''
+    url = ''
 
     @classmethod
     def get_repo_archive(cls, url):
@@ -22,8 +23,8 @@ class Analyzer:
         url = url.split('/')
         url[2] = 'api.github.com'
         url.insert(3, 'repos')
-        url = '/'.join(url)
-        response = requests.get(url + '/zipball')
+        cls.url = '/'.join(url)
+        response = requests.get(cls.url + '/zipball')
         if response.status_code == requests.codes.ok:
             cls.tempdir = tempfile.mkdtemp()
             cls.zip_path = os.path.join(cls.tempdir, 'repo.zip')
@@ -69,3 +70,45 @@ class Analyzer:
 
         shutil.rmtree(cls.tempdir)
         return results
+
+    @classmethod
+    def find_email(cls, data):
+        """
+        Find user email in api's public events json response
+        :param data: json containing user's public events
+        :return: user's email or None if not found
+        """
+        if isinstance(data, dict):
+            for k in data:
+                if k == 'email':
+                    return data[k]
+                res = cls.find_email(data[k])
+                if res is not None and 'noreply' not in res:
+                    return res
+        elif isinstance(data, list):
+            for item in data:
+                res = cls.find_email(item)
+                if res is not None and 'noreply' not in res:
+                    return res
+
+        return None
+
+    @classmethod
+    def get_repo_subscribers(cls):
+        """
+        Get the repository subscribers' emails 
+        :return: list of emails or empty list if no emails were found
+        :raise HTTPError: when request failed
+        """
+        subs = requests.get(cls.url + '/subscribers')
+        if subs.status_code == requests.codes.ok:
+            emails = []
+            for sub in subs.json():
+                events_url = sub['events_url'].replace('{/privacy}', '/public')
+                email = cls.find_email(requests.get(events_url).json())
+                if email is not None:
+                    emails.append(email)
+
+            return emails
+        else:
+            subs.raise_for_status()

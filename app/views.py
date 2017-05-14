@@ -4,6 +4,7 @@ from django.views.generic import ListView, DetailView
 from django.views.generic.edit import ModelFormMixin
 from django.db.models import Sum
 from django.contrib import messages
+from django.core.mail import send_mail
 from datetime import datetime
 from requests import exceptions
 
@@ -19,6 +20,20 @@ def analyze_and_update_files(repo):
     File.objects.filter(repo=repo).exclude(path__in=paths).delete()
     for filestats in results:
         File.objects.update_or_create(repo=repo, path=filestats['path'], defaults=filestats)
+
+
+def mail_subscribers(name, url):
+    mail_subject = 'Repository {} analysis report'.format(name)
+    mail_msg = ('The {} repository has been analyzed against PEP8 conventions.\n'
+                'The results can be seen here:\n'
+                '[Here goes the url of the webapp]'
+                ).format(url)
+    emails = Analyzer.get_repo_subscribers()
+    if emails:
+        print("-------------------------------------------------------------------------------")
+        send_mail(mail_subject, mail_msg, 'notifier@codeanalyzer.pl', emails, fail_silently=False)
+    else:
+        print('No emails found')
 
 
 class IndexView(ListView, ModelFormMixin):
@@ -53,6 +68,7 @@ class IndexView(ListView, ModelFormMixin):
                                                           defaults={'analysis_date': datetime.now()})
 
             analyze_and_update_files(repo)
+            mail_subscribers(repo.name, repo.url)
             messages.success(request, "Repository analyzed successfully. Here are the results.")
             return HttpResponseRedirect(reverse('app:detail', kwargs={'pk': repo.id}))
 
@@ -82,6 +98,7 @@ class RepoDetailView(DetailView):
             repo.analysis_date = datetime.now()
             repo.save()
             analyze_and_update_files(repo)
+            mail_subscribers(repo.name, repo.url)
             messages.success(request, "Repository analyzed successfully. Report has been updated.")
         except exceptions.HTTPError:
             messages.error(request, "Failure: Repository not found.")
