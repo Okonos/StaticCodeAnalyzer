@@ -57,8 +57,7 @@ class Analyzer:
         results = []
         for filename in os.listdir(cls.tempdir):
             filepath = os.path.join(cls.tempdir, filename)
-            result = style.check_files([filepath])  # (os.listdir('/tmp/asdf'))
-            # result.get_file_results()
+            result = style.check_files([filepath])
             f = io.StringIO()
             with redirect_stdout(f):
                 result.print_statistics()
