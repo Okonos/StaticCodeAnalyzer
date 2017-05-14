@@ -95,7 +95,7 @@ class Analyzer:
     @classmethod
     def get_repo_subscribers(cls):
         """
-        Get the repository subscribers' emails 
+        Get the repository subscribers' emails via events url
         :return: list of emails or empty list if no emails were found
         :raise HTTPError: when request failed
         """
