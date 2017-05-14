@@ -14,7 +14,11 @@ class Analyzer:
 
     @classmethod
     def get_repo_archive(cls, url):
-        """Downloads repo's zip archive using GitHub API"""
+        """
+        Downloads repo's zip archive using GitHub API
+        :param url: repository's URL
+        :raise HTTPError: when request failed
+        """
         url = url.split('/')
         url[2] = 'api.github.com'
         url.insert(3, 'repos')
@@ -43,7 +47,10 @@ class Analyzer:
 
     @classmethod
     def analyze(cls):
-        """Extract, analyze and return the statistics of all source files using pep8 checker."""
+        """
+        Extract, analyze and return the statistics of all source files using pep8 checker.
+        :return: list of dictionaries each featuring file info and stats
+        """
         cls.extract_py_files()
         style = pep8.StyleGuide()
         results = []
