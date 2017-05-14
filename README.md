@@ -37,10 +37,10 @@ Po analizie archiwum i pliki są usuwane.
 Powyższy plik zawiera również kod pozyskujący emaile subskrybentów projektu. Z uwagi na fakt, że email użytkownika
 wyświetlany jest jedynie jeśli został on ustawiony przez niego jako publiczny i co więcej
 jedynie dla uwierzytelnionych użytkowników, na potrzeby tego zadania stażowego odbywa się to niejako "na około",
-stosując "hack", wyłuskujący email z publicznych wydarzeń użytkownika.
+stosując "hack", wyłuskujący email z publicznych wydarzeń użytkownika (`GET /users/:username/events/public`).
 W rzeczywistych warunkach, zakładając, że każdy z subskrybentów projektu miałby swój adres ustawiony jako publiczny,
 wystarczyłby Personal Access Token w nagłówku żądania `GET /users/:username`.
 
 Aplikacja nie była pisana z myślą o wspołbieżnym dostępie, dlatego jednoczesne zlecenie analizy tego samego repozytorium
 mogłoby poskutkować dwukrotnym jego dodaniem do bazy danych.
-Rozwiązaniem tego problemu mogłoby być np. nadanie atrybutu unikalności [polu nazwy repozytorium](app/models.py#L11).
+Rozwiązaniem tego problemu może być np. nadanie atrybutu unikalności [polu nazwy repozytorium](app/models.py#L11).
