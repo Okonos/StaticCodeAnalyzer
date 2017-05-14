@@ -11,6 +11,10 @@
 
     <style>
         td { text-align: center; }
+        .clickable:hover {
+            cursor: pointer;
+            text-decoration: underline;
+        }
     </style>
 
     {#    clickable #}
@@ -50,8 +54,9 @@
                     <tbody>
                     {% for repo in repositories %}
                         <tr>
-                            <td class="clickable" data-href="{% url 'app:detail' repo.id %}"
-                                style="cursor: pointer">{{ repo.name }}</td>
+                            <td class="clickable" data-href="{% url 'app:detail' repo.id %}">
+                                <strong>{{ repo.name }}</strong>
+                            </td>
                             <td><a href="{{ repo.url }}">{{ repo.url }}</a></td>
                             <td>{{ repo.analysis_date }}</td>
                         </tr>
