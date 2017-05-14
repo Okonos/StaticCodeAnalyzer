@@ -74,6 +74,9 @@ class IndexView(ListView, ModelFormMixin):
 
         return self.get(self, request, *args, **kwargs)
 
+    def get_queryset(self):
+        return Repository.objects.order_by('-analysis_date')
+
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
         context['form'] = self.form
